@@ -1,5 +1,8 @@
 #include <iostream>
 
 int main() {
-  std::cout << "Hello world" << std::endl;
+  char name[1024];
+  std::cout << "What your name? > " << std::flush;
+  std::cin >> name;
+  std::cout << "Hello " << name << std::endl;
 }
