@@ -6,3 +6,6 @@ bin/Counter: src/Counter.h src/DoubleCounter.h src/Counter.cpp src/DoubleCounter
 
 bin/Fill: src/Tmpl.h src/Fill.cpp
 	g++ -o bin/Fill -Wall -g src/Tmpl.h src/Fill.cpp
+
+bin/TryCatch: src/TryCatch.cpp
+	g++ -o bin/TryCatch -Wall -g src/TryCatch.cpp
