@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
 
-class HogeError {
+class Exception {
  public:
-  HogeError() { m_str = "hogehoge"; }
-  ~HogeError() { delete m_str.c_str(); }
+  explicit Exception(std::string str) : m_str(str) { }
+  ~Exception() { delete m_str.c_str(); }
   std::string message() const { return m_str; }
  private:
   std::string m_str;
@@ -12,9 +12,9 @@ class HogeError {
 
 int main(int argc, char *argv[]) {
   try {
-    throw new HogeError();
-  } catch (HogeError *hoge) {
-    std::cout << hoge->message() << std::endl;
+    throw new Exception("Oops!");
+  } catch (Exception *ex) {
+    std::cout << ex->message() << std::endl;
   }
 
   exit(0);
