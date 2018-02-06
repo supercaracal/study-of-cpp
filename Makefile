@@ -9,3 +9,6 @@ bin/Fill: src/Tmpl.h src/Fill.cpp
 
 bin/TryCatch: src/TryCatch.cpp
 	g++ -o bin/TryCatch -Wall -g src/TryCatch.cpp
+
+bin/01_01_05: src/01_01_05_main.cpp
+	g++ -o bin/01_01_05 -Wall -g src/01_01_05_main.cpp
