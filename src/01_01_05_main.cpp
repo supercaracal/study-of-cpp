@@ -11,88 +11,64 @@
  */
 
 static const char USAGE[] = "w:up z:down a:left s:right q:end";
-static const char END_MESSAGE[] = "Thank you.";
+static const char QUIT_MESSAGE[] = "Bye bye.";
 
 static const char MARK_PLAYER = 'p';
-static const char MARK_BUGGAGE = 'o';
+static const char MARK_PLAYER_ON_GOAL = 'P';
+static const char MARK_BAGGAGE = 'o';
+static const char MARK_BAGGAGE_ON_GOAL = 'O';
 static const char MARK_GOAL = '.';
 static const char MARK_WALL = '#';
 static const char MARK_BLANK = ' ';
 
 #define MAX_Y 5
-#define MAX_X 9
+#define MAX_X 8
+#define BAGGAGE_COUNT 2
 
 struct pos {
   int y;
   int x;
+  bool fix;
 };
 
 struct game {
   pos player;
-  pos baggage1;
-  pos baggage2;
-  pos goal1;
-  pos goal2;
+  pos baggages[BAGGAGE_COUNT];
+  pos goals[BAGGAGE_COUNT];
 };
 
 static void initialize(game *g);
-static bool valid(game *g, char field[MAX_Y][MAX_X], int x, int y);
-static bool on_goal(pos target, game *g);
-static void move(game *g, char field[MAX_Y][MAX_X]);
 static char read_key(void);
-static void clear(char field[MAX_Y][MAX_X]);
-static void draw(char field[MAX_Y][MAX_X]);
+static void move(game *g, char key);
+static bool on_wall(int y, int x);
+static bool on_goal(game *g, int y, int x);
+static bool on_baggage(game *g, int y, int x);
+static void draw(game *g);
 
 int main(int argc, char *argv[]) {
-  char field[MAX_Y][MAX_X] = {
-    { "########" },
-    { "#      #" },
-    { "#      #" },
-    { "#      #" },
-    { "########" }
-  };
-
   static game g;
   initialize(&g);
-  move(&g, field);
-  draw(field);
-  std::cerr << USAGE << std::endl;
+  draw(&g);
 
   char key;
   while ((key = read_key())) {
-    switch (key) {
-      case 'w':
-        if (valid(&g, field, g.player.y - 1, g.player.x)) g.player.y -= 1;
-        break;
-      case 'z':
-        if (valid(&g, field, g.player.y + 1, g.player.x)) g.player.y += 1;
-        break;
-      case 'a':
-        if (valid(&g, field, g.player.y, g.player.x - 1)) g.player.x -= 1;
-        break;
-      case 's':
-        if (valid(&g, field, g.player.y, g.player.x + 1)) g.player.x += 1;
-        break;
-      case 'q':
-        std::cerr << END_MESSAGE << std::endl;
-        exit(0);
-      default:
-        std::cerr << USAGE << std::endl;
-        exit(1);
+    if (key == 'q') {
+      break;
     }
-    move(&g, field);
-    draw(field);
-    std::cerr << USAGE << std::endl;
+    move(&g, key);
+    draw(&g);
   }
+
+  std::cerr << QUIT_MESSAGE << std::endl;
   exit(0);
 }
 
 static void initialize(game *g) {
   g->player = { 1, 5 };
-  g->baggage1 = { 2, 2 };
-  g->baggage2 = { 2, 3 };
-  g->goal1 = { 1, 2 };
-  g->goal2 = { 1, 3 };
+  g->baggages[0] = { 2, 2 };
+  g->baggages[1] = { 2, 3 };
+  g->goals[0] = { 1, 2 };
+  g->goals[1] = { 1, 3 };
 }
 
 static char read_key(void) {
@@ -101,45 +77,89 @@ static char read_key(void) {
   return c;
 }
 
-static bool valid(game *g, char field[MAX_Y][MAX_X], int y, int x) {
-  bool on_baggage1 = g->baggage1.y == y && g->baggage1.x == x;
-  bool on_baggage2 = g->baggage2.y == y && g->baggage2.x == x;
-  bool on_wall = field[y][x] == MARK_WALL;
-  return !on_baggage1 && !on_baggage2 && !on_wall;
+static void move(game *g, char key) {
+  signed int delta_y = 0;
+  signed int delta_x = 0;
+
+  switch (key) {
+    case 'w':
+      --delta_y;
+      break;
+    case 'z':
+      ++delta_y;
+      break;
+    case 'a':
+      --delta_x;
+      break;
+    case 's':
+      ++delta_x;
+      break;
+  }
+
+  int y = g->player.y + delta_y;
+  int x = g->player.x + delta_x;
+
+  if (on_baggage(g, y, x)) {
+    // TODO: implement
+    return;
+  }
+
+  if (on_wall(y, x)) {
+    return;
+  }
+
+  g->player.y += delta_y;
+  g->player.x += delta_x;
 }
 
-static void move(game *g, char field[MAX_Y][MAX_X]) {
-  // TODO: Move baggages.
-  clear(field);
-  field[g->goal1.y][g->goal1.x] = MARK_GOAL;
-  field[g->goal2.y][g->goal2.x] = MARK_GOAL;
-  field[g->player.y][g->player.x] = on_goal(g->player, g) ? 'P' : MARK_PLAYER;
-  field[g->baggage1.y][g->baggage1.x] = on_goal(g->baggage1, g) ? 'O' : MARK_BUGGAGE;
-  field[g->baggage2.y][g->baggage2.x] = on_goal(g->baggage2, g) ? 'O' : MARK_BUGGAGE;
+static bool on_wall(int y, int x) {
+  int last_y = MAX_Y - 1;
+  int last_x = MAX_X - 1;
+  return y == 0 || y == last_y || x == 0 || x == last_x;
 }
 
-static bool on_goal(pos target, game *g) {
-  return (target.y == g->goal1.y && target.x == g->goal1.x)
-    || (target.y == g->goal2.y && target.x == g->goal2.x);
-}
-
-static void clear(char field[MAX_Y][MAX_X]) {
+static bool on_goal(game *g, int y, int x) {
   int i;
-  int j;
-  int x_last = MAX_X - 1;
-  for (i = 0; i < MAX_Y; ++i) {
-    for (j = 0; j < x_last; ++j) {
-      if (field[i][j] == MARK_WALL) {
-        continue;
-      }
-      field[i][j] = MARK_BLANK;
+  for (i = 0; i < BAGGAGE_COUNT; ++i) {
+    pos goal = g->goals[i];
+    if (goal.y == y && goal.x == x) {
+      return true;
     }
   }
+  return false;
 }
 
-static void draw(char field[MAX_Y][MAX_X]) {
+static bool on_baggage(game *g, int y, int x) {
   int i;
-  for (i = 0; i < MAX_Y; ++i) {
-    std::cout << field[i] << std::endl;
+  for (i = 0; i < BAGGAGE_COUNT; ++i) {
+    pos baggage = g->baggages[i];
+    if (baggage.y == y && baggage.x == x) {
+      return true;
+    }
   }
+  return false;
+}
+
+static void draw(game *g) {
+  int i;
+  int j;
+  char c;
+  for (i = 0; i < MAX_Y; ++i) {
+    for (j = 0; j < MAX_X; ++j) {
+      if (on_wall(i, j)) {
+        c = MARK_WALL;
+      } else if (i == g->player.y && j == g->player.x) {
+        c = on_goal(g, i, j) ? MARK_PLAYER_ON_GOAL : MARK_PLAYER;
+      } else if (on_baggage(g, i, j)) {
+        c = on_goal(g, i, j) ? MARK_BAGGAGE_ON_GOAL : MARK_BAGGAGE;
+      } else if (on_goal(g, i, j)) {
+        c = MARK_GOAL;
+      } else {
+        c = MARK_BLANK;
+      }
+      std::cout << c;
+    }
+    std::cout << std::endl;
+  }
+  std::cerr << USAGE << std::endl;
 }
