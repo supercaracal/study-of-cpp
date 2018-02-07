@@ -11,7 +11,8 @@
  */
 
 static const char USAGE[] = "w:up z:down a:left s:right q:end";
-static const char QUIT_MESSAGE[] = "Bye bye.";
+static const char MESSAGE_QUIT[] = "Bye bye.";
+static const char MESSAGE_GOAL[] = "Finish!!";
 
 static const char MARK_PLAYER = 'p';
 static const char MARK_PLAYER_ON_GOAL = 'P';
@@ -28,7 +29,6 @@ static const char MARK_BLANK = ' ';
 struct pos {
   int y;
   int x;
-  bool fix;
 };
 
 struct game {
@@ -39,10 +39,12 @@ struct game {
 
 static void initialize(game *g);
 static char read_key(void);
-static void move(game *g, char key);
+static void move_player(game *g, char key);
+static bool move_baggage(game *g, pos delta, pos player);
 static bool on_wall(int y, int x);
 static bool on_goal(game *g, int y, int x);
 static bool on_baggage(game *g, int y, int x);
+static bool is_goal(game *g);
 static void draw(game *g);
 
 int main(int argc, char *argv[]) {
@@ -55,11 +57,15 @@ int main(int argc, char *argv[]) {
     if (key == 'q') {
       break;
     }
-    move(&g, key);
+    move_player(&g, key);
     draw(&g);
+    if (is_goal(&g)) {
+      std::cerr << MESSAGE_GOAL << std::endl;
+      break;
+    }
   }
 
-  std::cerr << QUIT_MESSAGE << std::endl;
+  std::cerr << MESSAGE_QUIT << std::endl;
   exit(0);
 }
 
@@ -77,39 +83,60 @@ static char read_key(void) {
   return c;
 }
 
-static void move(game *g, char key) {
-  signed int delta_y = 0;
-  signed int delta_x = 0;
+static void move_player(game *g, char key) {
+  pos delta = { 0, 0 };
 
   switch (key) {
     case 'w':
-      --delta_y;
+      --delta.y;
       break;
     case 'z':
-      ++delta_y;
+      ++delta.y;
       break;
     case 'a':
-      --delta_x;
+      --delta.x;
       break;
     case 's':
-      ++delta_x;
+      ++delta.x;
       break;
   }
 
-  int y = g->player.y + delta_y;
-  int x = g->player.x + delta_x;
+  pos p = { g->player.y + delta.y, g->player.x + delta.x };
 
-  if (on_baggage(g, y, x)) {
-    // TODO: implement
+  if (on_wall(p.y, p.x)) {
     return;
   }
 
-  if (on_wall(y, x)) {
-    return;
+  if (on_baggage(g, p.y, p.x)) {
+    bool moved = move_baggage(g, delta, p);
+    if (!moved) return;
   }
 
-  g->player.y += delta_y;
-  g->player.x += delta_x;
+  g->player.y += delta.y;
+  g->player.x += delta.x;
+}
+
+static bool move_baggage(game *g, pos delta, pos player) {
+  pos before;
+  pos after;
+  int i;
+  for (i = 0; i < BAGGAGE_COUNT; ++i) {
+    before = { g->baggages[i].y, g->baggages[i].x };
+    if (before.y != player.y || before.x != player.x) {
+      continue;
+    }
+    if (on_goal(g, before.y, before.x)) {
+      continue;
+    }
+    after = { g->baggages[i].y + delta.y, g->baggages[i].x + delta.x };
+    if (on_wall(after.y, after.x) || on_baggage(g, after.y, after.x)) {
+      continue;
+    }
+    g->baggages[i].y += delta.y;
+    g->baggages[i].x += delta.x;
+    return true;
+  }
+  return false;
 }
 
 static bool on_wall(int y, int x) {
@@ -138,6 +165,31 @@ static bool on_baggage(game *g, int y, int x) {
     }
   }
   return false;
+}
+
+static bool is_goal(game *g) {
+  int i;
+  int j;
+  int by;
+  int bx;
+  int gy;
+  int gx;
+  bool match = false;
+  for (i = 0; i < BAGGAGE_COUNT; ++i) {
+    by = g->baggages[i].y;
+    bx = g->baggages[i].x;
+    match = false;
+    for (j = 0; j < BAGGAGE_COUNT; ++j) {
+      gy = g->goals[j].y;
+      gx = g->goals[j].x;
+      if (by == gy && bx == gx) {
+        match = true;
+        continue;
+      }
+    }
+    if (!match) return match;
+  }
+  return match;
 }
 
 static void draw(game *g) {
