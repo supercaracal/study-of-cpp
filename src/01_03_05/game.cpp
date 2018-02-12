@@ -1,18 +1,36 @@
 #include "headers/game.h"
 
-game::game(const int height, const int width) : m_loaded(false), m_height(height), m_width(width) {
-  m_sl = new std::string[m_height];
+game::game() : m_loaded(false) {
+  m_stage = new std::vector<std::string>;
+}
+
+game::game(const game& g) {
+  m_stage = new std::vector<std::string>;
+  std::copy(g.m_stage->begin(), g.m_stage->end(), std::back_inserter(*m_stage));
+  m_loaded = g.m_loaded;
+}
+
+game& game::operator=(const game& g) {
+  std::vector<std::string>* tmp_stg = new std::vector<std::string>;
+  delete m_stage;
+  m_stage = tmp_stg;
+  std::copy(g.m_stage->begin(), g.m_stage->end(), std::back_inserter(*m_stage));
+  m_loaded = g.m_loaded;
+  return *this;
 }
 
 game::~game() {
-  delete[] m_sl;
+  delete m_stage;
 }
 
 void game::load_stage(std::istream& is) {
-  char buf[m_width];
-  for (int i = 0; is.good(); i++, m_loaded = true) {
-    is.getline(buf, m_width);
-    m_sl[i] = buf;
+  if (m_loaded) return;
+
+  char buf[1024];
+  while (is.good()) {
+    is.getline(buf, sizeof buf);
+    m_stage->push_back(buf);
+    m_loaded = true;
   }
 }
 
@@ -21,7 +39,7 @@ bool game::load_failed() const {
 }
 
 void game::print_stage() const {
-  for (int i = 0; !m_sl[i].empty(); ++i) {
-    std::cout << m_sl[i] << std::endl;
+  for (unsigned int i = 0, s = m_stage->size() - 1; i < s; ++i) {
+    std::cout << m_stage->at(i) << std::endl;
   }
 }

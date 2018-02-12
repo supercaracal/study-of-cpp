@@ -20,24 +20,26 @@
  *   ########
  */
 
-static const int MAX_HEIGHT = 32;
-static const int MAX_WIDTH = 32;
-
 static void die(std::string msg);
 
 int main(int argc, char *argv[]) {
-  game g = game(MAX_HEIGHT, MAX_WIDTH);
+  game* g = new game();
 
   if (argc == 1) {
-    g.load_stage(std::cin);
+    g->load_stage(std::cin);
   } else {
     std::ifstream ifs(argv[1], std::ifstream::in);
-    g.load_stage(ifs);
+    g->load_stage(ifs);
   }
 
-  if (g.load_failed()) die("Could not load stage.");
+  if (g->load_failed()) {
+    delete g;
+    die("Could not load stage.");
+  }
 
-  g.print_stage();
+  g->print_stage();
+
+  delete g;
   exit(EXIT_SUCCESS);
 }
 
