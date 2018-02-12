@@ -6,4 +6,4 @@ class state {
   state(const state& s);
   state& operator=(const state& s);
 };
-#endif // SRC_01_03_05_STATE_H_
+#endif  // SRC_01_03_05_STATE_H_

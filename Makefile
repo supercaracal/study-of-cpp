@@ -1,17 +1,17 @@
-bin/Hello: src/Hello.cpp
-	g++ -o bin/Hello -Wall -g src/Hello.cpp
+bin/hello: src/trash/hello.cpp
+	g++ -o $@ -Wall -g $^
 
-bin/Counter: src/Counter.h src/DoubleCounter.h src/Counter.cpp src/DoubleCounter.cpp src/Count.cpp
-	g++ -o bin/Counter -Wall -g src/Counter.h src/DoubleCounter.h src/Counter.cpp src/DoubleCounter.cpp src/Count.cpp
+bin/counter: src/trash/counter.h src/trash/double_counter.h src/trash/counter.cpp src/trash/double_counter.cpp src/trash/count.cpp
+	g++ -o $@ -Wall -g $^
 
-bin/Fill: src/Tmpl.h src/Fill.cpp
-	g++ -o bin/Fill -Wall -g src/Tmpl.h src/Fill.cpp
+bin/fill: src/trash/tmpl.h src/trash/fill.cpp
+	g++ -o $@ -Wall -g $^
 
-bin/TryCatch: src/TryCatch.cpp
-	g++ -o bin/TryCatch -Wall -g src/TryCatch.cpp
+bin/try_catch: src/trash/try_catch.cpp
+	g++ -o $@ -Wall -g $^
 
 bin/01_01_05: src/01_01_05_main.cpp
-	g++ -o bin/01_01_05 -Wall -g src/01_01_05_main.cpp
+	g++ -o $@ -Wall -g $^
 
 bin/01_03_05: $(wildcard src/01_03_05/*.h src/01_03_05/*.cpp)
 	g++ -o $@ -Wall -g $^

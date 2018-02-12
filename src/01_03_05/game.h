@@ -20,4 +20,4 @@ class game {
   char read_key() const;
   void print_stage() const;
 };
-#endif // SRC_01_03_05_GAME_H_
+#endif  // SRC_01_03_05_GAME_H_

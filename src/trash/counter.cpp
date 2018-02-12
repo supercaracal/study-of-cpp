@@ -1,10 +1,10 @@
-#include "Counter.h"
+#include "counter.h"
 
 Counter::Counter() {
   cnt = 0;
 }
 
-Counter::Counter(Counter &c) {
+Counter::Counter(const Counter& c) {
   cnt = c.get();
 }
 

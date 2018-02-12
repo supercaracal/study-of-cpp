@@ -1,6 +1,6 @@
 #include <iostream>
-#include "Counter.h"
-#include "DoubleCounter.h"
+#include "counter.h"
+#include "double_counter.h"
 
 int main(int argc, char *argv[]) {
   Counter c;

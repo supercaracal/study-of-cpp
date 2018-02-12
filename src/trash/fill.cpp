@@ -1,5 +1,5 @@
 #include <string>
-#include "Tmpl.h"
+#include "tmpl.h"
 
 int main(int argc, char *argv[]) {
   const int SIZE = 10;
