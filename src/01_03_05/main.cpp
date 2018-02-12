@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "headers/game.h"
+#include "game.h"
 
 /**
  * Move baggages to each goals.
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     die("Could not load stage.");
   }
 
-  g->print_stage();
+  g->start();
 
   delete g;
   exit(EXIT_SUCCESS);

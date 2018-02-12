@@ -1,4 +1,4 @@
-#include "headers/game.h"
+#include "game.h"
 
 game::game() : m_loaded(false) {
   m_stage = new std::vector<std::string>;
@@ -36,6 +36,23 @@ void game::load_stage(std::istream& is) {
 
 bool game::load_failed() const {
   return !m_loaded;
+}
+
+void game::start() {
+  char key;
+  while (true) {
+    print_stage();
+    key = read_key();
+    if (key == 'q') {
+      break;
+    }
+  }
+}
+
+char game::read_key() const {
+  char c;
+  std::cin >> c;
+  return c;
 }
 
 void game::print_stage() const {
