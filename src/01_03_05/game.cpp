@@ -38,25 +38,20 @@ bool game::load_failed() const {
   return !m_loaded;
 }
 
-void game::start() {
+void game::run() const {
   char key;
   while (true) {
     print_stage();
-    key = read_key();
+    std::cin >> key;
     if (key == 'q') {
       break;
     }
   }
 }
 
-char game::read_key() const {
-  char c;
-  std::cin >> c;
-  return c;
-}
-
 void game::print_stage() const {
   for (unsigned int i = 0, s = m_stage->size() - 1; i < s; ++i) {
     std::cout << m_stage->at(i) << std::endl;
   }
+  std::cout << "w:up z:down a:left s:right q:end" << std::endl;
 }

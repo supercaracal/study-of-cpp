@@ -25,8 +25,9 @@ static void die(std::string msg);
 int main(int argc, char *argv[]) {
   game* g = new game();
 
-  if (argc == 1) {
-    g->load_stage(std::cin);
+  if (argc != 2) {
+    delete g;
+    die("Please specify a stage file.");
   } else {
     std::ifstream ifs(argv[1], std::ifstream::in);
     g->load_stage(ifs);
@@ -37,7 +38,7 @@ int main(int argc, char *argv[]) {
     die("Could not load stage.");
   }
 
-  g->start();
+  g->run();
 
   delete g;
   exit(EXIT_SUCCESS);
