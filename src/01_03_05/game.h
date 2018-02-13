@@ -1,9 +1,7 @@
 #ifndef SRC_01_03_05_GAME_H_
 #define SRC_01_03_05_GAME_H_
 #include <iostream>
-#include <string>
-#include <vector>
-#include <algorithm>
+#include <sstream>
 #include "state.h"
 class game {
  public:
@@ -13,10 +11,10 @@ class game {
   virtual ~game();
   void load_stage(std::istream& is);
   bool load_failed() const;
-  void run() const;
+  void run();
  private:
-  std::vector<std::string>* m_stage;
   bool m_loaded;
-  void print_stage() const;
+  state m_state;
+  void print_stage();
 };
 #endif  // SRC_01_03_05_GAME_H_

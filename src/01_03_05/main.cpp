@@ -9,8 +9,6 @@
  *
  * Usage:
  *   $ make bin/01_03_05
- *   $ cat data/stage.txt | bin/01_03_05
- *   $ bin/01_03_05 < data/stage.txt
  *   $ bin/01_03_05 data/stage.txt
  *
  *   ########

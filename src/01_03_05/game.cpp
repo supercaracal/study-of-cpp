@@ -1,44 +1,40 @@
 #include "game.h"
 
 game::game() : m_loaded(false) {
-  m_stage = new std::vector<std::string>;
 }
 
 game::game(const game& g) {
-  m_stage = new std::vector<std::string>;
-  std::copy(g.m_stage->begin(), g.m_stage->end(), std::back_inserter(*m_stage));
   m_loaded = g.m_loaded;
+  m_state = g.m_state;
 }
 
 game& game::operator=(const game& g) {
-  std::vector<std::string>* tmp_stg = new std::vector<std::string>;
-  delete m_stage;
-  m_stage = tmp_stg;
-  std::copy(g.m_stage->begin(), g.m_stage->end(), std::back_inserter(*m_stage));
   m_loaded = g.m_loaded;
+  m_state = g.m_state;
   return *this;
 }
 
 game::~game() {
-  delete m_stage;
 }
 
 void game::load_stage(std::istream& is) {
-  if (m_loaded) return;
+  if (m_loaded || is.fail()) return;
 
-  char buf[1024];
-  while (is.good()) {
-    is.getline(buf, sizeof buf);
-    m_stage->push_back(buf);
-    m_loaded = true;
-  }
+  is.seekg(0, is.end);
+  int length = is.tellg();
+  is.seekg(0, is.beg);
+  char* buffer = new char[length];
+  is.read(buffer, length);
+  m_state.set(buffer);
+  m_loaded = true;
+  delete buffer;
 }
 
 bool game::load_failed() const {
   return !m_loaded;
 }
 
-void game::run() const {
+void game::run() {
   char key;
   while (true) {
     print_stage();
@@ -49,9 +45,6 @@ void game::run() const {
   }
 }
 
-void game::print_stage() const {
-  for (unsigned int i = 0, s = m_stage->size() - 1; i < s; ++i) {
-    std::cout << m_stage->at(i) << std::endl;
-  }
-  std::cout << "w:up z:down a:left s:right q:end" << std::endl;
+void game::print_stage() {
+  std::cout << m_state.get() << "w:up z:down a:left s:right q:end" << std::endl;
 }
