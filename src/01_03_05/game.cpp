@@ -38,9 +38,15 @@ void game::run() {
   char key;
   while (true) {
     print_stage();
+    if (m_state.is_goal()) {
+      std::cout << "GOAL!!" << std::endl;
+      break;
+    }
     std::cin >> key;
     if (key == 'q') {
       break;
+    } else {
+      m_state.move(key);
     }
   }
 }
