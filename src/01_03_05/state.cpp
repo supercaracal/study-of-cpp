@@ -28,8 +28,7 @@ void state::set(char* data) {
 }
 
 std::string state::get() {
-  // FIXME: This is a bug.
-  // std::sort(m_objects.begin(), m_objects.end(), *this);
+  std::sort(m_objects.begin(), m_objects.end(), *this);
   std::stringstream ss;
   std::vector<std::tuple<char, int, int>>::iterator it;
   for (it = m_objects.begin(); it != m_objects.end(); ++it) {
@@ -40,8 +39,7 @@ std::string state::get() {
 
 bool state::operator() (const std::tuple<char, int, int> a,
                         const std::tuple<char, int, int> b) {
-  bool y = std::get<1>(a) >= std::get<1>(b);
-  bool x = std::get<2>(a) >= std::get<2>(b);
 
-  return y && x;
+  return (std::get<1>(a) < std::get<1>(b))
+    || (std::get<1>(a) == std::get<1>(b) && std::get<2>(a) < std::get<2>(b));
 }
